@@ -18,7 +18,7 @@ public class Spearman {
 	public static HashMap<Integer, Integer> validJudges;
 	public static String aa = "all";//"NF";
 	public static String bb = "all";//"nf_search";
-	public static int nItr = 1000;
+	public static int nItr = 1;
 
 	public static void main(String[] args) throws IOException {
 		suspects = new HashMap<Integer, Integer>();

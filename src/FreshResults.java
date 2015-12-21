@@ -5,8 +5,8 @@ public class FreshResults {
 
 	public static HashMap<Integer, Integer> validJudges;
 	public static HashMap<Integer, Integer> suspects;
-	public static String aa = "F";
-	public static String bb = "news";
+	public static String aa = "NF";
+	public static String bb = "nf_news";
 
 	public static void main(String[] args) throws IOException {
 		readJudges();
@@ -14,14 +14,407 @@ public class FreshResults {
 		//getAvgScoresAll();
 		//getAvgScoresAllMethods();
 		//getAvgScoresAllMethodsPopularity();
-		
+
 		//getAvgScoresAllPopularity();
 		System.out.println("Printing results for NO SUSPECT judges...");
 		//getAvgScoresNoSuspects();
 		//getAvgScoresNoSuspectsMethods();
-		getAvgScoresNoSuspectsMethodsPopularity();
+		//getAvgScoresNoSuspectsMethodsPopularity();
 		//getAvgScoresNoSuspectsPopularity();
+		//onlyExactMatches();
+		countPerMethodSuggestionsPerGroup();
 		System.out.println(aa+" "+bb);
+	}
+	
+	public static void countPerMethodSuggestionsPerGroup() throws IOException
+	{
+		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/rishabh-final-anon.txt"));
+		String line = br.readLine();
+		line = br.readLine();//skip the first line
+		int skips = 0, read=0, start=1, grp=0,ss=0, grpCount=0, maxjid=0;
+		String group="", prevgroup="";
+
+		double xy[][][] = new double[11][20][2];
+		double jxy[][][] = new double[11][20][2];
+		for(int i=0;i<11;i++)
+			for(int j=0;j<20;j++)
+				for(int k=0;k<2;k++)
+				{xy[i][j][k]=-1;jxy[i][j][k]=-1;}
+
+		ArrayList<Item> last5m = new ArrayList<Item>();
+		ArrayList<Item> last5e = new ArrayList<Item>();
+		ArrayList<Item> last5o = new ArrayList<Item>();
+		ArrayList<Item> last5p = new ArrayList<Item>();
+		double ndcg5m=0,ndcg5e=0,ndcg5o=0,ndcg5p=0;
+		double ndcg5count=0;
+		int c0=0,c1=0,c2=0,c3=0,c4=0,c5=0,call=0;
+		int cmt=0,cet=0,cot=0,cpt=0;//c1Temp for c1t
+		while(line!=null)
+		{
+			String parts[] = line.split("\t");
+			read++;
+			if(parts.length!=24) skips++;
+			//System.out.println("ROW:_"+row);
+			String userid = parts[1];
+			String fnf = parts[3];
+			String method = parts[4];
+			int match = Integer.parseInt(parts[6]);
+			int entity = Integer.parseInt(parts[7]);
+			int odp = Integer.parseInt(parts[8]);
+			int popular = Integer.parseInt(parts[9]);
+			double j1 = Double.parseDouble(parts[10]);
+			double j2 = Double.parseDouble(parts[12]);
+			double j3 = Double.parseDouble(parts[14]);
+			double j4 = Double.parseDouble(parts[16]);
+			double j5 = Double.parseDouble(parts[18]);
+			int jid1 = Integer.parseInt(parts[11]);
+			int jid2 = Integer.parseInt(parts[13]);
+			int jid3 = Integer.parseInt(parts[15]);
+			int jid4 = Integer.parseInt(parts[17]);
+			int jid5 = Integer.parseInt(parts[19]);
+			
+			
+			double avgScore = 0, num=0, den=0;
+			if(!suspects.containsKey(jid1)) {num+=j1;den++;}
+			if(!suspects.containsKey(jid2)) {num+=j2;den++;}
+			if(!suspects.containsKey(jid3)) {num+=j3;den++;}
+			if(!suspects.containsKey(jid4)) {num+=j4;den++;}
+			if(!suspects.containsKey(jid5)) {num+=j5;den++;}
+
+			if(num>0 && den>0)
+			{
+				avgScore = num/den;
+			}
+			
+			if(fnf.compareTo(aa)!=0 || method.compareTo(bb)!=0) {line = br.readLine();continue;}
+			
+			//System.out.println(j1+"_"+j2+"_"+j3+"_"+j4+"_"+j5);
+			group = userid+fnf+method;
+			//System.out.println("group: "+group+"____prevgroup: "+prevgroup);
+			if(group.compareTo(prevgroup)!=0 && start!=1)
+			{
+				//now we have  a group of (max) 20 pairwise X-Y values of 10 pairs, we need to calculate Spearman for each of these 10 pairs
+				//so we have cmt giving the no of m suggestions in this group
+				// find the min of cmt, etc
+				int min = Math.min(cmt, Math.min(cet, Math.min(cot, cpt)));
+				if(min == 0)
+					c0++;
+				if(min == 1)
+					c1++;
+				if(min == 2)
+					c2++;
+				if(min == 3)
+					c3++;
+				if(min == 4)
+					c4++;
+				if(min == 5)
+					c5++;
+				call++;
+				System.out.println("============== "+cmt+" "+cet+" "+cot+" "+cpt);
+				cmt=0;cet=0;cot=0;cpt=0;
+				
+				// compute NDCG now
+				if(min == 5)
+				{
+					//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
+					//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
+					last5m.sort(new ItemComparator());
+					//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
+					//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
+					last5e.sort(new ItemComparator());
+					last5o.sort(new ItemComparator());
+					last5p.sort(new ItemComparator());
+					//now the list is sorted based on rank, compute the NDCG
+					ArrayList<Double> list = new ArrayList<Double>();
+					list.add(last5m.get(0).score);
+					list.add(last5m.get(1).score);
+					list.add(last5m.get(2).score);
+					list.add(last5m.get(3).score);
+					list.add(last5m.get(4).score);
+					//compute NDCG on this list
+					System.out.println("exact match");
+					//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+					double ndcg = computeNDCG(list);
+					System.out.println(ndcg);
+					ndcg5m+=ndcg;
+					System.out.println("entity");
+					list = new ArrayList<Double>();
+					list.add(last5e.get(0).score);
+					list.add(last5e.get(1).score);
+					list.add(last5e.get(2).score);
+					list.add(last5e.get(3).score);
+					list.add(last5e.get(4).score);
+					//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+					ndcg = computeNDCG(list);
+					System.out.println(ndcg);
+					ndcg5e+=ndcg;
+					System.out.println("odp");
+					list = new ArrayList<Double>();
+					list.add(last5o.get(0).score);
+					list.add(last5o.get(1).score);
+					list.add(last5o.get(2).score);
+					list.add(last5o.get(3).score);
+					list.add(last5o.get(4).score);
+					//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+					ndcg = computeNDCG(list);
+					ndcg5o+=ndcg;
+					System.out.println(ndcg);
+					System.out.println("popular");
+					list = new ArrayList<Double>();
+					list.add(last5p.get(0).score);
+					list.add(last5p.get(1).score);
+					list.add(last5p.get(2).score);
+					list.add(last5p.get(3).score);
+					list.add(last5p.get(4).score);
+					//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+					ndcg = computeNDCG(list);
+					ndcg5p+=ndcg;
+					System.out.println(ndcg);
+					ndcg5count++;
+					//System.exit(0);
+				}
+				
+				last5m = new ArrayList<Item>();
+				last5e = new ArrayList<Item>();
+				last5o = new ArrayList<Item>();
+				last5p = new ArrayList<Item>();
+				
+				grpCount++;
+				ss=0;
+				grp=0;
+				if(match>0) cmt++;
+				if(entity>0) cet++;
+				if(odp>0) cot++;
+				if(popular>0) cpt++;
+				if(match>0)
+				{
+					Item i1 = new Item(match,avgScore);
+					last5m.add(i1);
+				}
+				if(entity>0)
+				{
+					Item i1 = new Item(entity,avgScore);
+					last5e.add(i1);
+				}
+				if(odp>0)
+				{
+					Item i1 = new Item(odp,avgScore);
+					last5o.add(i1);
+				}
+				if(popular>0)
+				{
+					Item i1 = new Item(popular,avgScore);
+					last5p.add(i1);
+				}
+			}
+			else
+			{
+				if(start==1) 
+				{//System.out.println("11");
+					start=0;ss=0;grp=0;
+				}
+
+				ss=0;
+
+				if(match>0) cmt++;
+				if(entity>0) cet++;
+				if(odp>0) cot++;
+				if(popular>0) cpt++;
+				System.out.println(match+" "+entity+" "+odp+" "+popular);
+				grp++;
+				
+				if(match>0)
+				{
+					Item i1 = new Item(match,avgScore);
+					last5m.add(i1);
+				}
+				if(entity>0)
+				{
+					Item i1 = new Item(entity,avgScore);
+					last5e.add(i1);
+				}
+				if(odp>0)
+				{
+					Item i1 = new Item(odp,avgScore);
+					last5o.add(i1);
+				}
+				if(popular>0)
+				{
+					Item i1 = new Item(popular,avgScore);
+					last5p.add(i1);
+				}
+				
+				//System.out.println("33");
+			}
+			prevgroup=group;
+
+			line = br.readLine();
+		}
+		br.close();
+		int min = Math.min(cmt, Math.min(cet, Math.min(cot, cpt)));
+		if(min == 0)
+			c0++;
+		if(min == 1)
+			c1++;
+		if(min == 2)
+			c2++;
+		if(min == 3)
+			c3++;
+		if(min == 4)
+			c4++;
+		if(min == 5)
+			c5++;
+		if(min == 5)
+		{
+			//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
+			//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
+			last5m.sort(new ItemComparator());
+			//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
+			//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
+			last5e.sort(new ItemComparator());
+			last5o.sort(new ItemComparator());
+			last5p.sort(new ItemComparator());
+			//now the list is sorted based on rank, compute the NDCG
+			ArrayList<Double> list = new ArrayList<Double>();
+			list.add(last5m.get(0).score);
+			list.add(last5m.get(1).score);
+			list.add(last5m.get(2).score);
+			list.add(last5m.get(3).score);
+			list.add(last5m.get(4).score);
+			//compute NDCG on this list
+			System.out.println("exact match");
+			//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+			double ndcg = computeNDCG(list);
+			System.out.println(ndcg);
+			ndcg5m+=ndcg;
+			System.out.println("entity");
+			list = new ArrayList<Double>();
+			list.add(last5e.get(0).score);
+			list.add(last5e.get(1).score);
+			list.add(last5e.get(2).score);
+			list.add(last5e.get(3).score);
+			list.add(last5e.get(4).score);
+			//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+			ndcg = computeNDCG(list);
+			System.out.println(ndcg);
+			ndcg5e+=ndcg;
+			System.out.println("odp");
+			list = new ArrayList<Double>();
+			list.add(last5o.get(0).score);
+			list.add(last5o.get(1).score);
+			list.add(last5o.get(2).score);
+			list.add(last5o.get(3).score);
+			list.add(last5o.get(4).score);
+			//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+			ndcg = computeNDCG(list);
+			ndcg5o+=ndcg;
+			System.out.println(ndcg);
+			System.out.println("popular");
+			list = new ArrayList<Double>();
+			list.add(last5p.get(0).score);
+			list.add(last5p.get(1).score);
+			list.add(last5p.get(2).score);
+			list.add(last5p.get(3).score);
+			list.add(last5p.get(4).score);
+			//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+			ndcg = computeNDCG(list);
+			ndcg5p+=ndcg;
+			System.out.println(ndcg);
+			ndcg5count++;
+			//System.exit(0);
+		}
+		
+		call++;
+		int sum = c0+c1+c2+c3+c4+c5;
+		System.out.println(c0+" "+c1+" "+c2+" "+c3+" "+c4+" "+c5+" "+call+" "+sum);
+		ndcg5m/=ndcg5count;
+		ndcg5e/=ndcg5count;
+		ndcg5o/=ndcg5count;
+		ndcg5p/=ndcg5count;
+		System.out.println("NDCG@5 values: "+ndcg5m+" "+ndcg5e+" "+ndcg5o+" "+ndcg5p+" "+ndcg5count);
+	}
+
+	public static void onlyExactMatches() throws IOException
+	{
+		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/rishabh-final-anon.txt"));
+		String line = br.readLine();
+		line = br.readLine();//skip the first line
+		double fnavg = 0, fnn = 0, fnd = 0;
+		double fsavg = 0, fsn = 0, fsd = 0;
+		double fsnaavg = 0, fsnan = 0, fsnad = 0;
+		double fsnnaavg = 0, fsnnan = 0, fsnnad = 0;
+		double nfnavg = 0, nfnn = 0, nfnd = 0;
+		double nfsavg = 0, nfsn = 0, nfsd = 0;
+		double nfsnaavg = 0, nfsnan = 0, nfsnad = 0;
+		double nfsnnaavg = 0, nfsnnan = 0, nfsnnad = 0;
+
+		while(line!=null)
+		{
+			String parts[] = line.split("\t");
+
+			int row = Integer.parseInt(parts[0]);
+			//System.out.println("ROW:_"+row);
+			String userid = parts[1];
+			String fnf = parts[3];
+			String method = parts[4];
+			int match = Integer.parseInt(parts[6]);
+			int entity = Integer.parseInt(parts[7]);
+			int odp = Integer.parseInt(parts[8]);
+			int popular = Integer.parseInt(parts[9]);
+			double j1 = Double.parseDouble(parts[10]);
+			double j2 = Double.parseDouble(parts[12]);
+			double j3 = Double.parseDouble(parts[14]);
+			double j4 = Double.parseDouble(parts[16]);
+			double j5 = Double.parseDouble(parts[18]);
+			int jid1 = Integer.parseInt(parts[11]);
+			int jid2 = Integer.parseInt(parts[13]);
+			int jid3 = Integer.parseInt(parts[15]);
+			int jid4 = Integer.parseInt(parts[17]);
+			int jid5 = Integer.parseInt(parts[19]);
+			String popularity = parts[23];
+
+			double avgScore = 0, num=0, den=0;
+			if(!suspects.containsKey(jid1)) {num+=j1;den++;}
+			if(!suspects.containsKey(jid2)) {num+=j2;den++;}
+			if(!suspects.containsKey(jid3)) {num+=j3;den++;}
+			if(!suspects.containsKey(jid4)) {num+=j4;den++;}
+			if(!suspects.containsKey(jid5)) {num+=j5;den++;}
+
+			if(num>0 && den>0)
+			{
+				avgScore = num/den;
+
+				if(match<1) {line = br.readLine();continue;}
+
+				if(fnf.compareTo("F")==0)
+				{
+					if(method.compareTo("news")==0) {fnn+=avgScore;fnd++;}
+					if(method.compareTo("search")==0) {fsn+=avgScore;fsd++;}
+					if(method.compareTo("sna")==0) {fsnan+=avgScore;fsnad++;}
+					if(method.compareTo("snna")==0) {fsnnan+=avgScore;fsnnad++;}
+				}
+				else if(fnf.compareTo("NF")==0)
+				{
+					if(method.compareTo("nf_news")==0) {nfnn+=avgScore;nfnd++;}
+					if(method.compareTo("nf_search")==0) {nfsn+=avgScore;nfsd++;}
+					if(method.compareTo("nf_sna")==0) {nfsnan+=avgScore;nfsnad++;}
+					if(method.compareTo("nf_snna")==0) {nfsnnan+=avgScore;nfsnnad++;}
+				}
+			}
+			line = br.readLine();
+		}
+		br.close();
+		fnavg = fnn/fnd;
+		fsavg = fsn/fsd;
+		fsnaavg = fsnan/fsnad;
+		fsnnaavg = fsnnan/fsnnad;
+		nfnavg = nfnn/nfnd;
+		nfsavg = nfsn/nfsd;
+		nfsnaavg = nfsnan/nfsnad;
+		nfsnnaavg = nfsnnan/nfsnnad;
+		
+		System.out.println(fnavg+" "+fsavg+" "+fsnaavg+" "+fsnnaavg);
+		System.out.println(nfnavg+" "+nfsavg+" "+nfsnaavg+" "+nfsnnaavg);
 	}
 
 	public static void getAvgScoresAll() throws IOException
@@ -89,7 +482,6 @@ public class FreshResults {
 		int sum = (int) ((int)md+ed+od+pd);
 		System.out.println(sum);
 	}
-
 	public static void getAvgScoresNoSuspects() throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/rishabh-final-anon.txt"));
@@ -167,25 +559,6 @@ public class FreshResults {
 
 	}
 
-
-	public static void readJudges() throws IOException
-	{
-		validJudges = new HashMap<Integer, Integer>();
-		suspects = new HashMap<Integer, Integer>();
-		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/results_dump/judges.txt"));
-		String line = br.readLine();
-		while(line!=null)
-		{
-			String parts[] = line.split(" ");
-			int jid = Integer.parseInt(parts[0]);
-			boolean suspect = Boolean.parseBoolean(parts[3]);
-			if(suspect)
-				suspects.put(jid, jid);
-			else
-				validJudges.put(jid, jid);
-			line = br.readLine();
-		}
-	}
 
 	public static void getAvgScoresAllMethods() throws IOException
 	{
@@ -386,8 +759,6 @@ public class FreshResults {
 		System.out.println(md4+" "+ed4+" "+od4+" "+pd4);
 	}
 
-
-
 	public static void getAvgScoresAllMethodsPopularity() throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/rishabh-final-anon.txt"));
@@ -483,7 +854,7 @@ public class FreshResults {
 					if(popular>0) {pn41+=avgScore;pd41++;}
 				}
 			}
-			
+
 			if(popularity.compareTo("1000s")==0)
 			{
 
@@ -518,8 +889,8 @@ public class FreshResults {
 					if(popular>0) {pn42+=avgScore;pd42++;}
 				}
 			}
-			
-			
+
+
 			if(popularity.compareTo("10000s")==0)
 			{
 
@@ -554,8 +925,8 @@ public class FreshResults {
 					if(popular>0) {pn43+=avgScore;pd43++;}
 				}
 			}
-			
-			
+
+
 			if(popularity.compareTo("100K")==0)
 			{
 
@@ -590,8 +961,8 @@ public class FreshResults {
 					if(popular>0) {pn44+=avgScore;pd44++;}
 				}
 			}
-			
-			
+
+
 			if(popularity.compareTo("1M")==0)
 			{
 
@@ -626,7 +997,7 @@ public class FreshResults {
 					if(popular>0) {pn45+=avgScore;pd45++;}
 				}
 			}
-			
+
 			//System.out.println(ways+" "+match+" "+entity+" "+odp+" "+popular);
 			line = br.readLine();
 		}
@@ -651,7 +1022,7 @@ public class FreshResults {
 		mavg43 = mn43/md43;eavg43 = en43/ed43;oavg43 = on43/od43;pavg43 = pn43/pd43;
 		mavg44 = mn44/md44;eavg44 = en44/ed44;oavg44 = on44/od44;pavg44 = pn44/pd44;
 		mavg45 = mn45/md45;eavg45 = en45/ed45;oavg45 = on45/od45;pavg45 = pn45/pd45;
-		
+
 
 		System.out.println(mavg11+" "+mavg12+" "+mavg13+" "+mavg14+" "+mavg15);
 		System.out.println(mavg21+" "+mavg22+" "+mavg23+" "+mavg24+" "+mavg25);
@@ -678,7 +1049,6 @@ public class FreshResults {
 		System.out.println(md3+" "+ed3+" "+od3+" "+pd3);
 		System.out.println(md4+" "+ed4+" "+od4+" "+pd4);*/
 	}
-
 	public static void getAvgScoresNoSuspectsMethodsPopularity() throws IOException
 	{
 		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/rishabh-final-anon.txt"));
@@ -780,7 +1150,7 @@ public class FreshResults {
 						if(popular>0) {pn41+=avgScore;pd41++;}
 					}
 				}
-				
+
 				if(popularity.compareTo("1000s")==0)
 				{
 
@@ -815,8 +1185,8 @@ public class FreshResults {
 						if(popular>0) {pn42+=avgScore;pd42++;}
 					}
 				}
-				
-				
+
+
 				if(popularity.compareTo("10000s")==0)
 				{
 
@@ -851,8 +1221,8 @@ public class FreshResults {
 						if(popular>0) {pn43+=avgScore;pd43++;}
 					}
 				}
-				
-				
+
+
 				if(popularity.compareTo("100K")==0)
 				{
 
@@ -887,8 +1257,8 @@ public class FreshResults {
 						if(popular>0) {pn44+=avgScore;pd44++;}
 					}
 				}
-				
-				
+
+
 				if(popularity.compareTo("1M")==0)
 				{
 
@@ -948,7 +1318,7 @@ public class FreshResults {
 		mavg43 = mn43/md43;eavg43 = en43/ed43;oavg43 = on43/od43;pavg43 = pn43/pd43;
 		mavg44 = mn44/md44;eavg44 = en44/ed44;oavg44 = on44/od44;pavg44 = pn44/pd44;
 		mavg45 = mn45/md45;eavg45 = en45/ed45;oavg45 = on45/od45;pavg45 = pn45/pd45;
-		
+
 
 		System.out.println(mavg11+" "+mavg12+" "+mavg13+" "+mavg14+" "+mavg15);
 		System.out.println(mavg21+" "+mavg22+" "+mavg23+" "+mavg24+" "+mavg25);
@@ -970,7 +1340,6 @@ public class FreshResults {
 		System.out.println(pavg31+" "+pavg32+" "+pavg33+" "+pavg34+" "+pavg35);
 		System.out.println(pavg41+" "+pavg42+" "+pavg43+" "+pavg44+" "+pavg45);
 	}
-
 
 	public static void getAvgScoresAllPopularity() throws IOException
 	{
@@ -1199,4 +1568,96 @@ public class FreshResults {
 		System.out.println(md5+" "+ed5+" "+od5+" "+pd5);
 	}
 
+	public static void readJudges() throws IOException
+	{
+		validJudges = new HashMap<Integer, Integer>();
+		suspects = new HashMap<Integer, Integer>();
+		BufferedReader br = new BufferedReader(new FileReader("/Users/rishabhmehrotra/Desktop/Rishabh_MSR15_Offline/results_dump/judges.txt"));
+		String line = br.readLine();
+		while(line!=null)
+		{
+			String parts[] = line.split(" ");
+			int jid = Integer.parseInt(parts[0]);
+			boolean suspect = Boolean.parseBoolean(parts[3]);
+			if(suspect)
+				suspects.put(jid, jid);
+			else
+				validJudges.put(jid, jid);
+			line = br.readLine();
+		}
+	}
+
+	public static double computeNDCG(List<Double> curList){
+		// Inspired from: http://plash2.iis.sinica.edu.tw/svn/autoquiz/HeilmanQGAutoquiz/src/edu/cmu/ark/ranking/RankingEval.java
+		double ndcg = 0.0;
+		
+		double point=0;
+		ndcg = 0.0;
+		double gain;
+		List<Double> labels = new ArrayList<Double>();
+		for(int j=0;j<curList.size(); j++){
+			point = curList.get(j);
+			
+				gain = point;
+			
+			ndcg += gain * ndcgDiscount(j);
+			//System.out.println(ndcg);
+		}
+		
+		double max = 0.0;
+		for(int j=0;j<curList.size(); j++) labels.add(curList.get(j));
+		Collections.sort(labels);
+		Collections.reverse(labels);
+		for(int j=0;j<labels.size(); j++){
+			
+				gain = labels.get(j);
+			
+			max += gain * ndcgDiscount(j);
+		}
+		
+		if(max == 0.0){
+			return -1.0;
+		}
+		//System.out.println("\n\n"+ndcg+" "+max);
+		ndcg /= max;
+		
+		if(Double.isNaN(ndcg)) ndcg = 0.0;
+		
+		return ndcg;
+	}
+	
+	
+	public static double ndcgDiscount(int i){
+		double res = 0.0;
+		if(i==0){
+			res = 1.0;
+		}else{
+			res = 1.0/(Math.log(1.0+i)/Math.log(2.0));
+		}
+		return res;
+	}
+}
+
+class Item
+{
+	public int rank;
+	public double score;
+	
+	public Item(int rank, double score)
+	{
+		this.rank = rank;
+		this.score = score;
+	}
+}
+
+class ItemComparator implements Comparator<Item> {
+
+    public int compare(Item r1, Item r2) {
+            if(r2.rank > r1.rank)
+                    return -1;
+            else if(r2.rank < r1.rank)
+                    return 1;
+            else
+                    return 0;
+    }
 }

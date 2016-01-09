@@ -167,85 +167,89 @@ public class FreshResults {
 					
 					ArrayList<Double> list12 = new ArrayList<Double>();
 					if (cmt>0) list12.add(last5m.get(0).score);
-					if (cmt>1) list12.add(last5m.get(1).score);
-					if (cmt>2) list12.add(last5m.get(2).score);
-					if (cmt>3) list12.add(last5m.get(3).score);
-					if (cmt>4) list12.add(last5m.get(4).score);
 					if (cet>0) list12.add(last5e.get(0).score);
+					if (cmt>1) list12.add(last5m.get(1).score);
 					if (cet>1) list12.add(last5e.get(1).score);
+					if (cmt>2) list12.add(last5m.get(2).score);
 					if (cet>2) list12.add(last5e.get(2).score);
+					if (cmt>3) list12.add(last5m.get(3).score);
 					if (cet>3) list12.add(last5e.get(3).score);
+					if (cmt>4) list12.add(last5m.get(4).score);
 					if (cet>4) list12.add(last5e.get(4).score);
 					int tt1 = list12.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list12.add(0.0);
 					
 					ArrayList<Double> list13 = new ArrayList<Double>();
 					if (cmt>0) list13.add(last5m.get(0).score);
-					if (cmt>1) list13.add(last5m.get(1).score);
-					if (cmt>2) list13.add(last5m.get(2).score);
-					if (cmt>3) list13.add(last5m.get(3).score);
-					if (cmt>4) list13.add(last5m.get(4).score);
 					if (cot>0) list13.add(last5o.get(0).score);
+					if (cmt>1) list13.add(last5m.get(1).score);
 					if (cot>1) list13.add(last5o.get(1).score);
+					if (cmt>2) list13.add(last5m.get(2).score);
 					if (cot>2) list13.add(last5o.get(2).score);
+					if (cmt>3) list13.add(last5m.get(3).score);
 					if (cot>3) list13.add(last5o.get(3).score);
+					if (cmt>4) list13.add(last5m.get(4).score);
 					if (cot>4) list13.add(last5o.get(4).score);
 					tt1 = list13.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list13.add(0.0);
 					
 					ArrayList<Double> list14 = new ArrayList<Double>();
 					if (cmt>0) list14.add(last5m.get(0).score);
-					if (cmt>1) list14.add(last5m.get(1).score);
-					if (cmt>2) list14.add(last5m.get(2).score);
-					if (cmt>3) list14.add(last5m.get(3).score);
-					if (cmt>4) list14.add(last5m.get(4).score);
 					if (cpt>0) list14.add(last5p.get(0).score);
+					if (cmt>1) list14.add(last5m.get(1).score);
 					if (cpt>1) list14.add(last5p.get(1).score);
+					if (cmt>2) list14.add(last5m.get(2).score);
 					if (cpt>2) list14.add(last5p.get(2).score);
+					if (cmt>3) list14.add(last5m.get(3).score);
 					if (cpt>3) list14.add(last5p.get(3).score);
+					if (cmt>4) list14.add(last5m.get(4).score);
 					if (cpt>4) list14.add(last5p.get(4).score);
 					tt1 = list14.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list14.add(0.0);
 					
 					ArrayList<Double> list23 = new ArrayList<Double>();
 					if (cet>0) list23.add(last5e.get(0).score);
-					if (cet>1) list23.add(last5e.get(1).score);
-					if (cet>2) list23.add(last5e.get(2).score);
-					if (cet>3) list23.add(last5e.get(3).score);
-					if (cet>4) list23.add(last5e.get(4).score);
 					if (cot>0) list23.add(last5o.get(0).score);
+					if (cet>1) list23.add(last5e.get(1).score);
 					if (cot>1) list23.add(last5o.get(1).score);
+					if (cet>2) list23.add(last5e.get(2).score);
 					if (cot>2) list23.add(last5o.get(2).score);
+					if (cet>3) list23.add(last5e.get(3).score);
 					if (cot>3) list23.add(last5o.get(3).score);
+					if (cet>4) list23.add(last5e.get(4).score);
 					if (cot>4) list23.add(last5o.get(4).score);
 					tt1 = list23.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list23.add(0.0);
 					
 					ArrayList<Double> list24 = new ArrayList<Double>();
 					if (cet>0) list24.add(last5e.get(0).score);
-					if (cet>1) list24.add(last5e.get(1).score);
-					if (cet>2) list24.add(last5e.get(2).score);
-					if (cet>3) list24.add(last5e.get(3).score);
-					if (cet>4) list24.add(last5e.get(4).score);
 					if (cpt>0) list24.add(last5p.get(0).score);
+					if (cet>1) list24.add(last5e.get(1).score);
 					if (cpt>1) list24.add(last5p.get(1).score);
+					if (cet>2) list24.add(last5e.get(2).score);
 					if (cpt>2) list24.add(last5p.get(2).score);
+					if (cet>3) list24.add(last5e.get(3).score);
 					if (cpt>3) list24.add(last5p.get(3).score);
+					if (cet>4) list24.add(last5e.get(4).score);
 					if (cpt>4) list24.add(last5p.get(4).score);
 					tt1 = list24.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list24.add(0.0);
 					
 					ArrayList<Double> list34 = new ArrayList<Double>();
 					if (cot>0) list34.add(last5o.get(0).score);
-					if (cot>1) list34.add(last5o.get(1).score);
-					if (cot>2) list34.add(last5o.get(2).score);
-					if (cot>3) list34.add(last5o.get(3).score);
-					if (cot>4) list34.add(last5o.get(4).score);
 					if (cpt>0) list34.add(last5p.get(0).score);
+					if (cot>1) list34.add(last5o.get(1).score);
 					if (cpt>1) list34.add(last5p.get(1).score);
+					if (cot>2) list34.add(last5o.get(2).score);
 					if (cpt>2) list34.add(last5p.get(2).score);
+					if (cot>3) list34.add(last5o.get(3).score);
 					if (cpt>3) list34.add(last5p.get(3).score);
+					if (cot>4) list34.add(last5o.get(4).score);
 					if (cpt>4) list34.add(last5p.get(4).score);
+					
+					
+					
+					
 					tt1 = list34.size();
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list34.add(0.0);
 					
@@ -292,6 +296,7 @@ public class FreshResults {
 					ndcg523 += ndcg23;
 					ndcg524 += ndcg24;
 					ndcg534 += ndcg34;
+					//if(ndcg1!=ndcg12) {System.out.println("Error!");System.exit(0);}
 					ndcg5count++;
 				}
 				
@@ -386,6 +391,7 @@ public class FreshResults {
 			c4++;
 		if(min == 5)
 			c5++;
+		/*
 		if(min == 5)
 		{
 			//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
@@ -445,6 +451,7 @@ public class FreshResults {
 			ndcg5count++;
 			//System.exit(0);
 		}
+		*/
 		
 		call++;
 		int sum = c0+c1+c2+c3+c4+c5;
@@ -461,6 +468,7 @@ public class FreshResults {
 		ndcg534/=ndcg5count;
 		System.out.println("NDCG@5 values: "+ndcg5m+" "+ndcg5e+" "+ndcg5o+" "+ndcg5p+" "+ndcg5count);
 		System.out.println("NDCG@5 values: "+ndcg512+" "+ndcg513+" "+ndcg514+" "+ndcg523+" "+ndcg524+" "+ndcg534+" "+ndcg5count);
+		System.out.println(ndcg5m+" "+ndcg512+" "+ndcg513+" "+ndcg514+" "+ndcg5e+" "+ndcg523+" "+ndcg524+" "+ndcg5o+" "+ndcg534+" "+ndcg5p+" "+ndcg5count);
 	}
 
 	public static void onlyExactMatches() throws IOException
@@ -1730,6 +1738,7 @@ public class FreshResults {
 				gain = point;
 			
 			ndcg += gain * ndcgDiscount(j);
+			//break;
 			//System.out.println(ndcg);
 		}
 		
@@ -1742,6 +1751,7 @@ public class FreshResults {
 				gain = labels.get(j);
 			
 			max += gain * ndcgDiscount(j);
+			//break;
 		}
 		
 		if(max == 0.0){
@@ -1769,6 +1779,7 @@ public class FreshResults {
 				gain = point;
 			
 			ndcg += gain * ndcgDiscount(j);
+			break;
 			//System.out.println(ndcg);
 		}
 		
@@ -1782,6 +1793,7 @@ public class FreshResults {
 			gain = listf.get(j);
 			
 			max += gain * ndcgDiscount(j);
+			break;
 		}
 		
 		if(max == 0.0){

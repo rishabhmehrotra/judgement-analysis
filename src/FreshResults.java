@@ -5,11 +5,15 @@ public class FreshResults {
 
 	public static HashMap<Integer, Integer> validJudges;
 	public static HashMap<Integer, Integer> suspects;
+	public static HashMap<Integer, Integer> candRanks;
 	public static String aa = "NF";
-	public static String bb = "nf_snna";
+	public static String bb = "nf_news";
+	public static boolean old = true;
 
 	public static void main(String[] args) throws IOException {
 		readJudges();
+		readCandidateRanks();
+		
 		System.out.println("Printing results for ALL judges...");
 		//getAvgScoresAll();
 		//getAvgScoresAllMethods();
@@ -45,7 +49,12 @@ public class FreshResults {
 		ArrayList<Item> last5e = new ArrayList<Item>();
 		ArrayList<Item> last5o = new ArrayList<Item>();
 		ArrayList<Item> last5p = new ArrayList<Item>();
+		ArrayList<Item> last5mR = new ArrayList<Item>();//cand_id
+		ArrayList<Item> last5eR = new ArrayList<Item>();
+		ArrayList<Item> last5oR = new ArrayList<Item>();
+		ArrayList<Item> last5pR = new ArrayList<Item>();
 		double ndcg5m=0,ndcg5e=0,ndcg5o=0,ndcg5p=0,ndcg544=0;
+		double ndcg5m1=0,ndcg5e1=0,ndcg5o1=0;//DO version
 		double ndcg512=0,ndcg513=0,ndcg514=0,ndcg523=0,ndcg524=0,ndcg534=0;
 		double ndcg5count=0;
 		int c0=0,c1=0,c2=0,c3=0,c4=0,c5=0,call=0;
@@ -59,6 +68,7 @@ public class FreshResults {
 			if(parts.length!=24) skips++;
 			//System.out.println("ROW:_"+row);
 			String userid = parts[1];
+			int cand = Integer.parseInt(parts[2]);
 			String fnf = parts[3];
 			String method = parts[4];
 			int match = Integer.parseInt(parts[6]);
@@ -93,7 +103,7 @@ public class FreshResults {
 				avgScore = num/den;
 			}
 			
-			if(fnf.compareTo(aa)!=0 || method.compareTo(bb)!=0) {line = br.readLine();continue;}
+			//if(fnf.compareTo(aa)!=0 || method.compareTo(bb)!=0) {line = br.readLine();continue;}
 			
 			//System.out.println(j1+"_"+j2+"_"+j3+"_"+j4+"_"+j5);
 			group = userid+fnf+method;
@@ -125,12 +135,15 @@ public class FreshResults {
 				{
 					//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
 					//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
-					last5m.sort(new ItemComparator());
+					
 					//System.out.println(last5m.get(0).rank+" "+last5m.get(1).rank+" "+last5m.get(2).rank+" "+last5m.get(3).rank+" "+last5m.get(4).rank);
 					//System.out.println(last5m.get(0).score+" "+last5m.get(1).score+" "+last5m.get(2).score+" "+last5m.get(3).score+" "+last5m.get(4).score);
+					// sort by ranks
+					last5m.sort(new ItemComparator());
 					last5e.sort(new ItemComparator());
 					last5o.sort(new ItemComparator());
 					last5p.sort(new ItemComparator());
+					
 					//now the list is sorted based on rank, compute the NDCG
 					ArrayList<Double> list1 = new ArrayList<Double>();
 					if (cmt>0) list1.add(last5m.get(0).score);
@@ -159,7 +172,8 @@ public class FreshResults {
 					if (cot>2) list3.add(last5o.get(2).score);
 					if (cot>3) list3.add(last5o.get(3).score);
 					if (cot>4) list3.add(last5o.get(4).score);
-					//System.out.println(list.get(0)+" "+list.get(1)+" "+list.get(2)+" "+list.get(3)+" "+list.get(4));
+					System.out.println("\n--------------------\n"+last5o.get(0).rank+" => "+last5o.get(1).rank+" "+last5o.get(2).rank+" "+last5o.get(3).rank);
+					System.out.println("\n--------------------\n"+last5o.get(0).score+" => "+last5o.get(1).score+" "+last5o.get(2).score+" "+last5o.get(3).score);
 					//ndcg = computeNDCG(list);
 					
 					ArrayList<Double> list4 = new ArrayList<Double>();
@@ -343,16 +357,24 @@ public class FreshResults {
 					if(tt1<5)for (int ii=tt1+1;ii<=5;ii++) list34.add(0.0);
 					
 					int tt = list1.size();
-					em1+=tt;
+					//em1+=tt;
+					if(tt<=5) em1+=tt;
+					else em1+=5;
 					for (int ii=tt+1;ii<=5;ii++) list1.add(0.0);
 					tt = list2.size();
-					ee+=tt;
+					//ee+=tt;
+					if(tt<=5) ee1+=tt;
+					else ee1+=5;
 					for (int ii=tt+1;ii<=5;ii++) list2.add(0.0);
 					tt = list3.size();
-					oo+=tt;
+					//oo+=tt;
+					if(tt<=5) oo1+=tt;
+					else oo1+=5;
 					for (int ii=tt+1;ii<=5;ii++) list3.add(0.0);
 					tt = list4.size();
-					pp+=tt;
+					//pp+=tt;
+					if(tt<=5) pp1+=tt;
+					else pp1+=5;
 					nn+=1;
 					for (int ii=tt+1;ii<=5;ii++) list4.add(0.0);
 					tt = list44.size();
@@ -360,17 +382,25 @@ public class FreshResults {
 					//System.exit(0);
 					
 					ArrayList<Double> listf = new ArrayList<Double>();
+					
 					for(int ii=0;ii<list1.size();ii++) listf.add(list1.get(ii));
 					for(int ii=0;ii<list2.size();ii++) listf.add(list2.get(ii));
-					for(int ii=0;ii<list3.size();ii++) listf.add(list3.get(ii));
+					for(int ii=0;ii<list3.size();ii++) {listf.add(list3.get(ii));System.out.print(list3.get(ii)+" -> ");}
 					for(int ii=0;ii<list4.size();ii++) listf.add(list4.get(ii));
+					
+					/*
+					for(int ii=0;ii<last5m.size();ii++) listf.add(last5m.get(ii).score);
+					for(int ii=0;ii<last5e.size();ii++) listf.add(last5e.get(ii).score);
+					for(int ii=0;ii<last5o.size();ii++) listf.add(last5o.get(ii).score);
+					for(int ii=0;ii<last5p.size();ii++) listf.add(last5p.get(ii).score);
+					*/
 					Collections.sort(listf);
 					Collections.reverse(listf);
 					double ndcg1 = computeNDCGNew(list1,listf);
 					double ndcg2 = computeNDCGNew(list2,listf);
 					double ndcg3 = computeNDCGNew(list3,listf);
 					double ndcg4 = computeNDCGNew(list4,listf);
-					double ndcg44 = computeNDCGNew(list4,listf);
+					double ndcg44 = computeNDCGNew(list44,listf);
 					double ndcg12 = computeNDCGNew(list12,listf);
 					double ndcg13 = computeNDCGNew(list13,listf);
 					double ndcg14 = computeNDCGNew(list14,listf);
@@ -410,25 +440,40 @@ public class FreshResults {
 				if(entity>0) cet++;
 				if(odp>0) cot++;
 				if(popular>0) cpt++;
+				int candRank = candRanks.get(cand);
+				Item i1 = null;
 				if(match>0)
 				{
-					Item i1 = new Item(match,avgScore);
+					// commented the below line for incorporating DO order ranking
+					
+					if(old) i1 = new Item(match,avgScore);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5m.add(i1);
+					//System.out.println(match+"___"+candRank);
 				}
 				if(entity>0)
 				{
-					Item i1 = new Item(entity,avgScore);
+					
+					if(old) i1= new Item(entity,avgScore);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5e.add(i1);
+				//	System.out.println(entity+"___"+candRank);
 				}
 				if(odp>0)
 				{
-					Item i1 = new Item(odp,avgScore);
+					
+					if(old) i1 = new Item(odp,avgScore);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5o.add(i1);
+					System.out.println(odp+"___"+candRank);
 				}
 				if(popular>0)
 				{
-					Item i1 = new Item(popular,avgScore);
+					
+					if(old) i1 = new Item(popular,avgScore);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5p.add(i1);
+					//System.out.println(popular+"___"+candRank);
 				}
 				cmt=0;cet=0;cot=0;cpt=0;
 			}
@@ -447,26 +492,44 @@ public class FreshResults {
 				if(popular>0) cpt++;
 				System.out.println(match+" "+entity+" "+odp+" "+popular);
 				grp++;
+				Item i1 = null;
 				
 				if(match>0)
 				{
-					Item i1 = new Item(match,avgScore);
+					
+					if(old) i1 = new Item(match,avgScore);
+					int candRank = candRanks.get(cand);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5m.add(i1);
+					//System.out.println(match+"___"+candRank);
 				}
 				if(entity>0)
 				{
-					Item i1 = new Item(entity,avgScore);
+					
+					if(old) i1 = new Item(entity,avgScore);
+					int candRank = candRanks.get(cand);
+					if(!old) i1 = new Item(candRank,avgScore);
 					last5e.add(i1);
+					//System.out.println(entity+"___"+candRank);
 				}
 				if(odp>0)
 				{
-					Item i1 = new Item(odp,avgScore);
+					
+					if(old)  i1 = new Item(odp,avgScore);
+					int candRank = candRanks.get(cand);
+					if(!old)  i1 = new Item(candRank,avgScore);
 					last5o.add(i1);
+					System.out.println(odp+"___"+candRank);
 				}
 				if(popular>0)
 				{
-					Item i1 = new Item(popular,avgScore);
+					
+					if(old) i1 = new Item(popular,avgScore);
+					int candRank = candRanks.get(cand);
+					if (!old) i1 = new Item(candRank,avgScore);
 					last5p.add(i1);
+					
+					//System.out.println(popular+"___"+candRank);
 				}
 				
 				//System.out.println("33");
@@ -568,8 +631,8 @@ public class FreshResults {
 		System.out.println("NDCG@5 values: "+ndcg5m+" "+ndcg5e+" "+ndcg5o+" "+ndcg544+" "+ndcg5p+" "+ndcg5count);
 		System.out.println("NDCG@5 values: "+ndcg512+" "+ndcg513+" "+ndcg514+" "+ndcg523+" "+ndcg524+" "+ndcg534+" "+ndcg5count);
 		System.out.println(ndcg5m+" "+ndcg512+" "+ndcg513+" "+ndcg514+" "+ndcg5e+" "+ndcg523+" "+ndcg524+" "+ndcg5o+" "+ndcg534+" "+ndcg5p+" "+ndcg5count);
-		System.out.println("Coverage: "+em+" "+ee+" "+oo+" "+pp);
-		System.out.println("Coverage: "+(double)em1/nn+" "+(double)ee/nn+" "+(double)oo/nn+" "+(double)pp/nn);
+		System.out.println("Coverage: "+em1+" "+ee1+" "+oo1+" "+pp1);
+		System.out.println("Coverage: "+(double)em1/nn+" "+(double)ee1/nn+" "+(double)oo1/nn+" "+(double)pp1/nn);
 	}
 
 	public static void onlyExactMatches() throws IOException
@@ -1879,6 +1942,7 @@ public class FreshResults {
 			point = curList.get(j);
 			
 				gain = point;
+				gain = Math.pow(2, point)-1;
 			
 			ndcg += gain * ndcgDiscount(j);
 			//break;
@@ -1895,6 +1959,7 @@ public class FreshResults {
 			
 				//gain = labels.get(j);
 			gain = listf.get(j);
+			gain = Math.pow(2, listf.get(j))-1;
 			
 			max += gain * ndcgDiscount(j);
 			//break;
@@ -1911,6 +1976,22 @@ public class FreshResults {
 			System.out.print(labels.get(ii)+"  ");
 		System.out.println("\n__"+ndcg);
 		return ndcg;
+	}
+	
+	public static void readCandidateRanks() throws IOException
+	{
+		candRanks = new HashMap<Integer, Integer>();
+		BufferedReader br = new BufferedReader(new FileReader("query-rankings.txt"));
+		String line = br.readLine();
+		while(line!=null)
+		{
+			String parts[] = line.split("\t");
+			int cid = Integer.parseInt(parts[0]);
+			int rank = Integer.parseInt(parts[0]);
+			candRanks.put(cid, rank);
+			line = br.readLine();
+		}
+		System.out.println("entered "+candRanks.size()+" no of candidate ranks");
 	}
 	
 	
